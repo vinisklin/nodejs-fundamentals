@@ -32,39 +32,27 @@ class TransactionsRepository {
       };
     }
 
-    const income = this.transactions.reduce(
-      (accTransaction, currTransaction): Transaction => {
-        let sum = 0;
-        if (accTransaction.type === 'income') {
-          sum = accTransaction.value;
+    const { income, outcome } = this.transactions.reduce(
+      (accumulator: Balance, transaction: Transaction) => {
+        switch (transaction.type) {
+          case 'income':
+            accumulator.income += transaction.value;
+            break;
+          case 'outcome':
+            accumulator.outcome += transaction.value;
+            break;
+          default:
+            break;
         }
-        if (currTransaction.type === 'income') {
-          sum += currTransaction.value;
-        }
-        return new Transaction({
-          title: 'sum',
-          value: sum,
-          type: 'income',
-        });
-      },
-    ).value;
 
-    const outcome = this.transactions.reduce(
-      (accTransaction, currTransaction): Transaction => {
-        let sum = 0;
-        if (accTransaction.type === 'outcome') {
-          sum = accTransaction.value;
-        }
-        if (currTransaction.type === 'outcome') {
-          sum += currTransaction.value;
-        }
-        return new Transaction({
-          title: 'sum',
-          value: sum,
-          type: 'outcome',
-        });
+        return accumulator;
       },
-    ).value;
+      {
+        income: 0,
+        outcome: 0,
+        total: 0,
+      },
+    );
 
     const total = income - outcome;
 
